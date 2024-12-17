@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e1e1e, #343a40);
+            color: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2rem;
+            color: #61dafb;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        input[type="file"] {
+            display: none;
+        }
+        label {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-bottom: 20px;
+        }
+        label:hover {
+            background-color: #218838;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+        .images-container {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        img {
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+            max-width: 100%;
+            height: auto;
+            max-height: 400px;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+        }
+        .loading, .status {
+            margin-top: 10px;
+            font-size: 1rem;
+        }
+        .status {
+            color: #ffca28;
+        }
+        .connected {
+            color: #28a745;
+        }
+        .disconnected {
+            color: #dc3545;
+        }
+        #fileInfo {
+            margin-top: 10px;
+            font-size: 1rem;
+            color: #61dafb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Upload Image for Roberts Operator</h1>
+        <label for="fileInput">Choose an Image</label>
+        <input type="file" id="fileInput" accept="image/*">
+        <div id="fileInfo"></div>
+        
+        <select id="modeSelect">
+            <option value="linear">Linear</option>
+            <option value="parallel">Parallel</option>
+        </select>
+        
+        <button onclick="uploadImage()">Upload Image</button>
+        <div class="loading" id="loading" style="display: none;">Processing image... <span id="timeLeft"></span></div>
+        <div class="status" id="connectionStatus">Checking server connection...</div>
+    </div>
+    <div class="images-container" id="imagesContainer"></div>
+    
+
+    <script>
+        let loadingInterval;
+        let secondsElapsed = 0;
+
+        document.getElementById('fileInput').addEventListener('change', function() {
+            const fileInfo = document.getElementById('fileInfo');
+            const file = this.files[0];
+            if (file) {
+                fileInfo.textContent = `Selected file: ${file.name} (Path: ${this.value})`;
+            } else {
+                fileInfo.textContent = '';
+            }
+        });
+
+        function uploadImage() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('Please select an image file.');
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const imageData = e.target.result;
+                displayOriginalImage(imageData);
+                startLoading();
+                sendDataToServer(imageData);
+            };
+
+            reader.readAsDataURL(file);
+        }
+
+        function displayOriginalImage(imageData) {
+            const imagesContainer = document.getElementById('imagesContainer');
+            imagesContainer.innerHTML = ''; 
+            const originalImg = document.createElement('img');
+            originalImg.src = imageData;
+            originalImg.alt = 'Original Image';
+            originalImg.title = 'Original Image';
+            imagesContainer.appendChild(originalImg);
+        }
+
+        function sendDataToServer(imageData) {
+    const mode = document.getElementById('modeSelect').value; 
+    fetch('http://localhost:8080/return_img', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ image: imageData, mode: mode }) 
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.blob();
+        } else {
+            throw new Error('Failed to upload image');
+        }
+    })
+    .then(blob => {
+        const url = URL.createObjectURL(blob);
+        displayProcessedImage(url);
+        stopLoading();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error uploading image: ' + error.message);
+        stopLoading();
+    });
+}
+
+        function displayProcessedImage(imageUrl) {
+            const imagesContainer = document.getElementById('imagesContainer');
+            const processedImg = document.createElement('img');
+            processedImg.src = imageUrl;
+            processedImg.alt = 'Processed Image';
+            processedImg.title = 'Processed Image';
+            imagesContainer.appendChild(processedImg);
+        }
+
+        function startLoading() {
+            const loadingElement = document.getElementById('loading');
+            const timeLeftElement = document.getElementById('timeLeft');
+            loadingElement.style.display = 'block';
+            secondsElapsed = 0;
+            timeLeftElement.textContent = `Elapsed: 0s`;
+
+            loadingInterval = setInterval(() => {
+                secondsElapsed++;
+                timeLeftElement.textContent = `Elapsed: ${secondsElapsed}s`;
+            }, 1000);
+        }
+
+        function stopLoading() {
+            clearInterval(loadingInterval);
+            const loadingElement = document.getElementById('loading');
+            loadingElement.style.display = 'none';
+        }
+
+        function checkServerConnection() {
+            const connectionStatus = document.getElementById('connectionStatus');
+
+            fetch('http://localhost:8080/', { method: 'GET' })
+                .then(response => {
+                    if (response.ok) {
+                        connectionStatus.textContent = 'Connected to server';
+                        connectionStatus.classList.remove('disconnected');
+                        connectionStatus.classList.add('connected');
+                    } else {
+                        throw new Error('Server not reachable');
+                    }
+                })
+                .catch(() => {
+                    connectionStatus.textContent = 'Disconnected from server';
+                    connectionStatus.classList.remove('connected');
+                    connectionStatus.classList.add('disconnected');
+                });
+        }
+
+        window.onload = checkServerConnection;
+        
+        setInterval(checkServerConnection, 30000);
+    </script>
+</body>
+</html>

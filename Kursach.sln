@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KursachHTTP", "KursachHTTP.csproj", "{2887EDFE-084C-4F7F-A543-45809313D3C7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoadTest", "LoadTest\LoadTest.csproj", "{5EB0A4CB-F64A-4FCF-86D7-C57427D95060}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2887EDFE-084C-4F7F-A543-45809313D3C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2887EDFE-084C-4F7F-A543-45809313D3C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2887EDFE-084C-4F7F-A543-45809313D3C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2887EDFE-084C-4F7F-A543-45809313D3C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5EB0A4CB-F64A-4FCF-86D7-C57427D95060}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5EB0A4CB-F64A-4FCF-86D7-C57427D95060}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5EB0A4CB-F64A-4FCF-86D7-C57427D95060}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5EB0A4CB-F64A-4FCF-86D7-C57427D95060}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {503C3B7D-9A4C-4DEE-843A-AB7F0975EB5A}
+	EndGlobalSection
+EndGlobal
